@@ -1,14 +1,78 @@
-# astrbot-plugin-helloworld
+# 消息合并转发 (astrbot_plugin_packsend)
 
-AstrBot 插件模板 / A template plugin for AstrBot plugin feature
+AstrBot 插件，根据 Bot 单次发送消息长度自动将长消息转为 QQ 合并转发消息，支持按群独立设置上限。
 
-> [!NOTE]
-> This repo is just a template of [AstrBot](https://github.com/AstrBotDevs/AstrBot) Plugin.
-> 
-> [AstrBot](https://github.com/AstrBotDevs/AstrBot) is an agentic assistant for both personal and group conversations. It can be deployed across dozens of mainstream instant messaging platforms, including QQ, Telegram, Feishu, DingTalk, Slack, LINE, Discord, Matrix, etc. In addition, it provides a reliable and extensible conversational AI infrastructure for individuals, developers, and teams. Whether you need a personal AI companion, an intelligent customer support agent, an automation assistant, or an enterprise knowledge base, AstrBot enables you to quickly build AI applications directly within your existing messaging workflows.
+## 功能特性
 
-# Supports
+- **按群独立设置上限**：每个群聊可单独配置 Bot 单次发送消息的文本长度上限
+- **自动合并转发**：当消息文本长度达到上限时，自动转为 QQ 合并转发消息
+- **管理员指令**：支持在群聊中使用 `/pack rate` 指令快速设置上限
+- **仅 aiocqhttp 平台生效**：仅在 QQ 群聊场景下工作，不影响其他平台
 
-- [AstrBot Repo](https://github.com/AstrBotDevs/AstrBot)
-- [AstrBot Plugin Development Docs (Chinese)](https://docs.astrbot.app/dev/star/plugin-new.html)
-- [AstrBot Plugin Development Docs (English)](https://docs.astrbot.app/en/dev/star/plugin-new.html)
+## 安装
+
+将插件文件夹 `astrbot_plugin_packsend` 放入 AstrBot 的 `data/plugins` 目录，重启 AstrBot 即可。
+
+## 配置说明
+
+在 AstrBot 插件管理后台可配置以下参数：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| `default_limit` | int | -1 | 所有群聊的默认上限（Bot 单次发送消息的 Plain 文本长度） |
+| `group_limits` | dict | {} | 为特定群聊设置独立上限，格式：`{"群号": 上限值}` |
+
+### 上限值含义
+
+| 值 | 含义 |
+|----|------|
+| -1 | 不启用此功能，消息正常发送 |
+| 0 | 该群所有消息均以合并转发形式发送 |
+| >0 | Bot 单次发送消息的文本长度达到该值时转为合并转发 |
+
+### 配置示例
+
+```json
+{
+    "default_limit": 500,
+    "group_limits": {
+        "123456789": 100,
+        "987654321": 0,
+        "111222333": -1
+    }
+}
+```
+
+## 管理员指令
+
+在群聊中发送以下指令（仅管理员可用）：
+
+```
+/pack rate <数字>
+```
+
+**示例：**
+
+```
+/pack rate 100    # 设置当前群上限为 100 字符
+/pack rate 0      # 该群所有消息均以合并转发发送
+/pack rate -1     # 关闭该群的消息合并转发功能
+```
+
+## 工作流程
+
+1. Bot 准备向群聊发送消息
+2. 插件检查该群的发送上限配置
+3. 若上限为 -1（不启用），消息正常发送
+4. 若上限为 0，始终使用合并转发
+5. 若上限 > 0 且消息文本长度达到上限，自动转为合并转发消息
+6. 若上限 > 0 但消息文本长度未达到上限，消息正常发送
+
+## 兼容性
+
+- 平台：aiocqhttp（QQ）
+- AstrBot 版本：>=4.16, <5
+
+## 许可证
+
+MIT
