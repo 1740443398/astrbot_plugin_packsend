@@ -1,7 +1,7 @@
 name: astrbot_plugin_packsend
 display_name: 消息合并转发
 desc: 根据Bot单次发送消息长度自动将长消息转为QQ合并转发消息，支持按群独立设置上限，检测到 / 指令后自动拦截5秒内输出并合并转发，管理员可通过 /pack rate 指令在聊天中快速设置
-version: v1.3.0
+version: v1.4.0
 author: 蕭遞和TRAE WORK(ds v4 pro)
 repo: https://github.com/1740443398/astrbot_plugin_packsend
 support_platforms:
